@@ -25,32 +25,29 @@ namespace TrilhaApiDesafio.Controllers
         [HttpGet("ObterTodos")]
         public IActionResult ObterTodos()
         {
-            // TODO: Buscar todas as tarefas no banco utilizando o EF
-            return Ok();
+            List<Tarefa> todasTarefas = _context.Tarefas.ToList();
+            return todasTarefas.Count == 0? NoContent() : Ok(todasTarefas);
         }
 
         [HttpGet("ObterPorTitulo")]
         public IActionResult ObterPorTitulo(string titulo)
         {
-            // TODO: Buscar  as tarefas no banco utilizando o EF, que contenha o titulo recebido por parâmetro
-            // Dica: Usar como exemplo o endpoint ObterPorData
-            return Ok();
+            var tarefasComTitulo = _context.Tarefas.Where(t => t.Titulo.Contains(titulo));
+            return tarefasComTitulo.Any() ? Ok(tarefasComTitulo) : NoContent() ;
         }
 
         [HttpGet("ObterPorData")]
         public IActionResult ObterPorData(DateTime data)
         {
-            var tarefa = _context.Tarefas.Where(x => x.Data.Date == data.Date);
-            return Ok(tarefa);
+            var tarefasNaData = _context.Tarefas.Where(x => x.Data.Date == data.Date);
+            return tarefasNaData.Any() ? Ok(tarefasNaData) : NoContent();
         }
 
         [HttpGet("ObterPorStatus")]
         public IActionResult ObterPorStatus(EnumStatusTarefa status)
         {
-            // TODO: Buscar  as tarefas no banco utilizando o EF, que contenha o status recebido por parâmetro
-            // Dica: Usar como exemplo o endpoint ObterPorData
-            var tarefa = _context.Tarefas.Where(x => x.Status == status);
-            return Ok(tarefa);
+            var tarefaComStatus = _context.Tarefas.Where(x => x.Status == status);
+            return tarefaComStatus.Any() ? Ok(tarefaComStatus) : NoContent();
         }
 
         [HttpPost]
