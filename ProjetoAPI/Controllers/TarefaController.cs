@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using TrilhaApiDesafio.Context;
 using TrilhaApiDesafio.Exceptions;
 using TrilhaApiDesafio.Models;
@@ -17,55 +18,55 @@ namespace TrilhaApiDesafio.Controllers
         }
 
         [HttpGet("{id}")]
-        public IActionResult ObterPorId(int id)
+        public async Task<IActionResult> ObterPorId(int id)
         {
-            Tarefa tarefa = _context.Tarefas.Find(id);
+            Tarefa tarefa = await _context.Tarefas.FindAsync(id);
             return tarefa == null? NotFound() : Ok(tarefa);
         }
 
         [HttpGet("ObterTodos")]
-        public IActionResult ObterTodos()
+        public async Task<IActionResult> ObterTodos()
         {
-            List<Tarefa> todasTarefas = _context.Tarefas.ToList();
+            List<Tarefa> todasTarefas = await _context.Tarefas.ToListAsync();
             return todasTarefas.Count == 0? NoContent() : Ok(todasTarefas);
         }
 
         [HttpGet("ObterPorTitulo")]
-        public IActionResult ObterPorTitulo(string titulo)
+        public async Task<IActionResult> ObterPorTitulo(string titulo)
         {
-            var tarefasComTitulo = _context.Tarefas.Where(t => t.Titulo.Contains(titulo));
+            var tarefasComTitulo = await _context.Tarefas.Where(t => t.Titulo.Contains(titulo)).ToListAsync();
             return tarefasComTitulo.Any() ? Ok(tarefasComTitulo) : NoContent() ;
         }
 
         [HttpGet("ObterPorData")]
-        public IActionResult ObterPorData(DateTime data)
+        public async Task<IActionResult> ObterPorData(DateTime data)
         {
-            var tarefasNaData = _context.Tarefas.Where(x => x.Data.Date == data.Date);
+            var tarefasNaData = await _context.Tarefas.Where(x => x.Data.Date == data.Date).ToListAsync();
             return tarefasNaData.Any() ? Ok(tarefasNaData) : NoContent();
         }
 
         [HttpGet("ObterPorStatus")]
-        public IActionResult ObterPorStatus(EnumStatusTarefa status)
+        public async Task<IActionResult> ObterPorStatus(EnumStatusTarefa status)
         {
-            var tarefaComStatus = _context.Tarefas.Where(x => x.Status == status);
+            var tarefaComStatus = await _context.Tarefas.Where(x => x.Status == status).ToListAsync();
             return tarefaComStatus.Any() ? Ok(tarefaComStatus) : NoContent();
         }
 
         [HttpPost]
-        public IActionResult Criar(Tarefa tarefa)
+        public async Task<IActionResult> Criar(Tarefa tarefa)
         {
             if (tarefa.Data == DateTime.MinValue)
                 throw new DataVaziaException();
 
-            _context.Tarefas.Add(tarefa);
-            _context.SaveChanges();
+            await _context.Tarefas.AddAsync(tarefa);
+            await _context.SaveChangesAsync();
             return CreatedAtAction(nameof(ObterPorId), new { id = tarefa.Id }, tarefa);
         }
 
         [HttpPut("{id}")]
-        public IActionResult Atualizar(int id, Tarefa tarefa)
+        public async Task<IActionResult> Atualizar(int id, Tarefa tarefa)
         {
-            var tarefaBanco = _context.Tarefas.Find(id);
+            var tarefaBanco = await _context.Tarefas.FindAsync(id);
 
             if (tarefaBanco == null)
                 return NotFound();
@@ -79,21 +80,21 @@ namespace TrilhaApiDesafio.Controllers
             tarefaBanco.Status = tarefa.Status;
             
             _context.Tarefas.Update(tarefaBanco);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
             return Ok(tarefaBanco);
         }
 
         [HttpDelete("{id}")]
-        public IActionResult Deletar(int id)
+        public async Task<IActionResult> Deletar(int id)
         {
-            var tarefaBanco = _context.Tarefas.Find(id);
+            var tarefaBanco = await _context.Tarefas.FindAsync(id);
 
             if (tarefaBanco == null)
                 return NotFound();
 
             _context.Remove(tarefaBanco);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             return NoContent();
         }
     }
