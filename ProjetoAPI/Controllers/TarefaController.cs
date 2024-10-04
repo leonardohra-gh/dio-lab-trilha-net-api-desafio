@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using TrilhaApiDesafio.Context;
+using TrilhaApiDesafio.Exceptions;
 using TrilhaApiDesafio.Models;
 
 namespace TrilhaApiDesafio.Controllers
@@ -54,7 +55,7 @@ namespace TrilhaApiDesafio.Controllers
         public IActionResult Criar(Tarefa tarefa)
         {
             if (tarefa.Data == DateTime.MinValue)
-                return BadRequest(new { Erro = "A data da tarefa não pode ser vazia" });
+                throw new DataVaziaException();
 
             _context.Tarefas.Add(tarefa);
             _context.SaveChanges();
@@ -70,7 +71,7 @@ namespace TrilhaApiDesafio.Controllers
                 return NotFound();
 
             if (tarefa.Data == DateTime.MinValue)
-                return BadRequest(new { Erro = "A data da tarefa não pode ser vazia" });
+                throw new DataVaziaException();
 
             tarefaBanco.Titulo = tarefa.Titulo;
             tarefaBanco.Descricao = tarefa.Descricao;
