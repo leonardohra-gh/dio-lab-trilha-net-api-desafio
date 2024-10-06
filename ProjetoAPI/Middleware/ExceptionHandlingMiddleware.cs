@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Text.Json;
 using System.Threading.Tasks;
+using TrilhaApiDesafio.Models.DTO.Response;
 
 namespace TrilhaApiDesafio.Middleware
 {
@@ -37,22 +38,10 @@ namespace TrilhaApiDesafio.Middleware
             context.Response.ContentType = "application.json";
             context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
 
-            ErrorResponse errorResponse = new()
-            {
-                StatusCode = context.Response.StatusCode,
-                Message = "Ocorreu um erro interno.",
-                DetailedMessage = ex.Message
-            };
+            ApiResponse<Exception> errorResponse = new(null, "Ocorreu um erro interno.", ex.Message, false);
 
             string errorJson = JsonSerializer.Serialize(errorResponse);
             await context.Response.WriteAsync(errorJson);
         }
-    }
-    
-    public class ErrorResponse
-    {
-        public int StatusCode { get; set; }
-        public string Message { get; set; }
-        public string DetailedMessage { get; set; }
     }
 }

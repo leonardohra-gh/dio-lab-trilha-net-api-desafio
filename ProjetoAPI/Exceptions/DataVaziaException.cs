@@ -7,9 +7,6 @@ namespace TrilhaApiDesafio.Exceptions
 {
     public class DataVaziaException : Exception
     {
-        public DataVaziaException() : base("A data da tarefa não pode ser vazia")
-        {
-
-        }
+        public DataVaziaException() : base("A data da tarefa não pode ser vazia"){}
     }
 }
