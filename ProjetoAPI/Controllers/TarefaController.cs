@@ -55,7 +55,6 @@ namespace TrilhaApiDesafio.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> ObterPorId(int id)
         {
-            var a = 1/id;
             Tarefa tarefa = await _context.Tarefas.FindAsync(id);
             return tarefa == null? NotFound(new ApiResponse<Tarefa>(null, "Tarefa não encontrada")) : Ok(new ApiResponse<Tarefa>(tarefa));
         }
