@@ -6,6 +6,7 @@ using TrilhaApiDesafio.Models;
 using TrilhaApiDesafio.Models.Database;
 using TrilhaApiDesafio.Models.DTO.Request;
 using TrilhaApiDesafio.Models.DTO.Response;
+using TrilhaApiDesafio.Services;
 
 namespace TrilhaApiDesafio.Controllers
 {
@@ -13,6 +14,7 @@ namespace TrilhaApiDesafio.Controllers
     [Route("[controller]")]
     public class TarefaController : ControllerBase
     {
+        private readonly TarefaService _tarefaService;
         private readonly OrganizadorContext _context;
         private readonly static string MensagemTarefaNaoEncontrada = "Não encontrado";
         private readonly static string MensagemDetalhadaTarefaNaoEncontrada = "Não foram encontradas tarefas com esse critério";
@@ -44,9 +46,10 @@ namespace TrilhaApiDesafio.Controllers
         private readonly static EnumStatusTarefa[] status = new EnumStatusTarefa[]{EnumStatusTarefa.Pendente, EnumStatusTarefa.Finalizado}; 
             
 
-        public TarefaController(OrganizadorContext context)
+        public TarefaController(OrganizadorContext context, TarefaService tarefaService)
         {
             _context = context;
+            _tarefaService = tarefaService;
         }
 
         [HttpGet("{id}")]
@@ -61,26 +64,17 @@ namespace TrilhaApiDesafio.Controllers
         public async Task<IActionResult> ObterTodos(QueryParameters parameters)
         {
             parameters.CheckValidity();
-            IQueryable<Tarefa> queryTarefas = _context.Tarefas.AsQueryable();
-            queryTarefas = parameters.IsAcending ? queryTarefas.OrderBy(t => EF.Property<object>(t, parameters.SortBy)) :
-                                                   queryTarefas.OrderByDescending(t => EF.Property<object>(t, parameters.SortBy));
+            IQueryable<Tarefa> queryTarefas = _tarefaService.GetQueryable();
+            queryTarefas = _tarefaService.ApplySorting(queryTarefas, parameters);
             
-            int totalRecords = await queryTarefas.CountAsync();
+            PagedResponse<Tarefa> pagedResponse = await _tarefaService.ApplyPaginationAsync(queryTarefas, parameters);
 
-            List<Tarefa> tarefasPaginadaOrdenada = totalRecords == 0? null :
-                                                        await queryTarefas
-                                                                        .Skip((parameters.PageNumber - 1)*parameters.PageSize)
-                                                                        .Take(parameters.PageSize)
-                                                                        .ToListAsync();
-            
-            PagedResponse<Tarefa> pagedResponse = new(tarefasPaginadaOrdenada, parameters.PageNumber, parameters.PageSize, totalRecords);
-
-            return tarefasPaginadaOrdenada.Count > 0? Ok(new ApiResponse<PagedResponse<Tarefa>>(pagedResponse)) : 
-                                                      NotFound(new ApiResponse<PagedResponse<Tarefa>>(pagedResponse, MensagemTarefaNaoEncontrada, MensagemDetalhadaTarefaNaoEncontrada, false));
+            return pagedResponse.Data.Any()? Ok(new ApiResponse<PagedResponse<Tarefa>>(pagedResponse)) : 
+                                             NotFound(new ApiResponse<PagedResponse<Tarefa>>(pagedResponse, MensagemTarefaNaoEncontrada, MensagemDetalhadaTarefaNaoEncontrada, false));
         }
 
-        [HttpGet("ObterPorTitulo")]
-        public async Task<IActionResult> ObterPorTitulo(string titulo)
+        [HttpPost("ObterPorTitulo")]
+        public async Task<IActionResult> ObterPorTitulo(QueryParameters parameters, string titulo)
         {
             var tarefasComTitulo = await _context.Tarefas.Where(t => t.Titulo.Contains(titulo)).ToListAsync();
             return tarefasComTitulo.Any() ? Ok(new ApiResponse<List<Tarefa>>(tarefasComTitulo)) : 
