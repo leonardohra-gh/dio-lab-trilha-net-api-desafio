@@ -43,7 +43,7 @@ namespace TrilhaApiDesafio.Controllers
         "celular", "tristeza", "hipopótamo", "vocabulário", "cama", "gás", "coral", "casaco", "discurso", "carros", "cinto", "entusiasmo", "famoso", "madeira", 
         "massa", "chão", "mala", "relógio", "deputado", "faca", "escuridão", "cadeado", "luz", "montanhas", "computador", "rádio", "laço", "quadro", "calor", 
         "jogo", "teatro", "clientela", "festa", "sono", "guarda-chuva"}; 
-        private readonly static EnumStatusTarefa[] status = new EnumStatusTarefa[]{EnumStatusTarefa.Pendente, EnumStatusTarefa.Finalizado}; 
+        private readonly static StatusTarefa[] status = new StatusTarefa[]{StatusTarefa.Pendente, StatusTarefa.Finalizado}; 
             
 
         public TarefaController(OrganizadorContext context, TarefaService tarefaService)
@@ -89,7 +89,7 @@ namespace TrilhaApiDesafio.Controllers
         }
 
         [HttpGet("ObterPorStatus")]
-        public async Task<IActionResult> ObterPorStatus(EnumStatusTarefa status)
+        public async Task<IActionResult> ObterPorStatus(StatusTarefa status)
         {
             var tarefaComStatus = await _context.Tarefas.Where(x => x.Status == status).ToListAsync();
             return tarefaComStatus.Any() ? Ok(new ApiResponse<List<Tarefa>>(tarefaComStatus)) : 
@@ -153,7 +153,7 @@ namespace TrilhaApiDesafio.Controllers
                 string randomVerbo = verbos[random.Next(verbos.Length)];
                 string randomSubstantivo = substantivos[random.Next(substantivos.Length)];
                 string titulo = $"{randomVerbo} {randomSubstantivo}";
-                EnumStatusTarefa statusTarefa = status[random.Next(status.Length)];
+                StatusTarefa statusTarefa = status[random.Next(status.Length)];
                 DateTime randomDate = DateTime.Now.AddDays(random.Next(-15, 31));
                 Tarefa tarefa = new()
                 {

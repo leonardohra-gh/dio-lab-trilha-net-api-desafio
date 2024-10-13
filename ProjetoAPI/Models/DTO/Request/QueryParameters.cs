@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using ProjetoAPI.Exceptions;
 
 namespace TrilhaApiDesafio.Models.DTO.Request
 {
@@ -14,7 +15,8 @@ namespace TrilhaApiDesafio.Models.DTO.Request
 
         public void CheckValidity()
         {
-            
+            if(PageNumber < 1)
+                throw new ParametroInvalidoException("PageNumber", PageNumber.ToString(), "O número da página deve ser um número positivo");
         }
     }
 }
