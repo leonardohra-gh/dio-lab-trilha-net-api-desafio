@@ -75,6 +75,7 @@ namespace TrilhaApiDesafio.Controllers
         [HttpPost("ObterPorTitulo")]
         public async Task<IActionResult> ObterPorTitulo(QueryParameters parameters, string titulo)
         {
+            parameters.CheckValidity();
             var tarefasComTitulo = await _context.Tarefas.Where(t => t.Titulo.Contains(titulo)).ToListAsync();
             return tarefasComTitulo.Any() ? Ok(new ApiResponse<List<Tarefa>>(tarefasComTitulo)) : 
                                             NotFound(new ApiResponse<List<Tarefa>>(null, MensagemTarefaNaoEncontrada, MensagemDetalhadaTarefaNaoEncontrada, false));
