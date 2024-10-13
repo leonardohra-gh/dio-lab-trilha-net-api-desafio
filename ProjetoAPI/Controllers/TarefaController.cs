@@ -66,35 +66,47 @@ namespace TrilhaApiDesafio.Controllers
             IQueryable<Tarefa> queryTarefas = _tarefaService.GetQueryable();
             queryTarefas = _tarefaService.ApplySorting(queryTarefas, parameters);
             
-            PagedResponse<Tarefa> pagedResponse = await _tarefaService.ApplyPaginationAsync(queryTarefas, parameters);
+            PagedResponse<Tarefa> todasTarefas = await _tarefaService.ApplyPaginationAsync(queryTarefas, parameters);
 
-            return pagedResponse.Data.Any()? Ok(new ApiResponse<PagedResponse<Tarefa>>(pagedResponse)) : 
-                                             NotFound(new ApiResponse<PagedResponse<Tarefa>>(pagedResponse, MensagemTarefaNaoEncontrada, MensagemDetalhadaTarefaNaoEncontrada, false));
+            return Ok(new ApiResponse<PagedResponse<Tarefa>>(todasTarefas));
         }
 
         [HttpPost("ObterPorTitulo")]
         public async Task<IActionResult> ObterPorTitulo(QueryParameters parameters, string titulo)
         {
             parameters.CheckValidity();
-            var tarefasComTitulo = await _context.Tarefas.Where(t => t.Titulo.Contains(titulo)).ToListAsync();
-            return tarefasComTitulo.Any() ? Ok(new ApiResponse<List<Tarefa>>(tarefasComTitulo)) : 
-                                            NotFound(new ApiResponse<List<Tarefa>>(null, MensagemTarefaNaoEncontrada, MensagemDetalhadaTarefaNaoEncontrada, false));
+            IQueryable<Tarefa> queryTarefas = _tarefaService.GetQueryable();
+            queryTarefas = queryTarefas.Where(t => t.Titulo.Contains(titulo));
+            queryTarefas = _tarefaService.ApplySorting(queryTarefas, parameters);
+
+            PagedResponse<Tarefa> tarefasComTitulo = await _tarefaService.ApplyPaginationAsync(queryTarefas, parameters);
+
+            return Ok(new ApiResponse<PagedResponse<Tarefa>>(tarefasComTitulo));
         }
 
-        [HttpGet("ObterPorData")]
-        public async Task<IActionResult> ObterPorData(DateTime data)
+        [HttpPost("ObterPorData")]
+        public async Task<IActionResult> ObterPorData(QueryParameters parameters, DateTime data)
         {
-            var tarefasNaData = await _context.Tarefas.Where(x => x.Data.Date == data.Date).ToListAsync();
-            return tarefasNaData.Any() ? Ok(new ApiResponse<List<Tarefa>>(tarefasNaData)) : 
-                                         NotFound(new ApiResponse<List<Tarefa>>(null, MensagemTarefaNaoEncontrada, MensagemDetalhadaTarefaNaoEncontrada, false));
+            parameters.CheckValidity();
+            IQueryable<Tarefa> queryTarefas = _tarefaService.GetQueryable();
+            queryTarefas = queryTarefas.Where(x => x.Data.Date == data.Date);
+            queryTarefas = _tarefaService.ApplySorting(queryTarefas, parameters);
+
+            PagedResponse<Tarefa> tarefasNaData = await _tarefaService.ApplyPaginationAsync(queryTarefas, parameters);
+
+            return Ok(new ApiResponse<PagedResponse<Tarefa>>(tarefasNaData));
         }
 
-        [HttpGet("ObterPorStatus")]
-        public async Task<IActionResult> ObterPorStatus(StatusTarefa status)
+        [HttpPost("ObterPorStatus")]
+        public async Task<IActionResult> ObterPorStatus(QueryParameters parameters, StatusTarefa status)
         {
-            var tarefaComStatus = await _context.Tarefas.Where(x => x.Status == status).ToListAsync();
-            return tarefaComStatus.Any() ? Ok(new ApiResponse<List<Tarefa>>(tarefaComStatus)) : 
-                                           NotFound(new ApiResponse<List<Tarefa>>(null, MensagemTarefaNaoEncontrada, MensagemDetalhadaTarefaNaoEncontrada, false));
+            parameters.CheckValidity();
+            IQueryable<Tarefa> queryTarefas = _tarefaService.GetQueryable();
+            queryTarefas = queryTarefas.Where(x => x.Status == status);
+            queryTarefas = _tarefaService.ApplySorting(queryTarefas, parameters);
+
+            PagedResponse<Tarefa> tarefaComStatus = await _tarefaService.ApplyPaginationAsync(queryTarefas, parameters);
+            return Ok(new ApiResponse<PagedResponse<Tarefa>>(tarefaComStatus));
         }
 
         [HttpPost]
